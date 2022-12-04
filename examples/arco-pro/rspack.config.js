@@ -11,7 +11,7 @@ module.exports = {
   devServer: {
     port: 5555
   },
-  devtool: false,
+  devtool: 'source-map',
   builtins: {
     html: [{
       template: './index.html',
