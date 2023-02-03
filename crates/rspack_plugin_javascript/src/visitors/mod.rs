@@ -112,7 +112,7 @@ pub fn run_before_pass(
         syntax.typescript()
       ),
       swc_visitor::reserved_words(),
-      swc_visitor::inject_helpers(),
+      swc_visitor::inject_helpers(unresolved_mark),
       // The ordering of these two is important, `expr_simplifier` goes first and `dead_branch_remover` goes second.
       swc_visitor::expr_simplifier(unresolved_mark, Default::default()),
       swc_visitor::dead_branch_remover(unresolved_mark),
@@ -138,7 +138,7 @@ pub fn run_after_pass(
       let unresolved_mark = context.unresolved_mark;
       let top_level_mark = context.top_level_mark;
       let tree_shaking = generate_context.compilation.options.builtins.tree_shaking;
-      let minify = generate_context.compilation.options.builtins.minify;
+      let minify = &generate_context.compilation.options.builtins.minify;
       let comments = None;
       let dependency_visitors =
         collect_dependency_code_generation_visitors(module, generate_context)?;
@@ -198,14 +198,9 @@ pub fn run_after_pass(
           generate_context.compilation.options.target.es_version
         ),
         inject_runtime_helper(unresolved_mark, generate_context.runtime_requirements),
-        module_variables(
-          module,
-          unresolved_mark,
-          top_level_mark,
-          generate_context.compilation,
-        ),
+        module_variables(module, generate_context.compilation),
         finalize(module, generate_context.compilation, unresolved_mark),
-        swc_visitor::hygiene(false),
+        swc_visitor::hygiene(false, top_level_mark),
         swc_visitor::fixer(comments.map(|v| v as &dyn Comments)),
       );
 

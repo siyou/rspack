@@ -1,11 +1,9 @@
 use rspack_core::{
   get_css_chunk_filename_template, get_js_chunk_filename_template,
   rspack_sources::{BoxSource, RawSource, SourceExt},
-  ChunkUkey, Compilation, FilenameRenderOptions, RuntimeModule, SourceType,
+  stringify_map, ChunkUkey, Compilation, FilenameRenderOptions, RuntimeModule, SourceType,
 };
 use rustc_hash::FxHashMap as HashMap;
-
-use super::utils::stringify_map;
 
 #[derive(Debug)]
 pub struct GetChunkFilenameRuntimeModule {
@@ -70,13 +68,7 @@ impl RuntimeModule for GetChunkFilenameRuntimeModule {
                   name: chunk.name_for_filename_template(),
                   extension: Some(format!(".{}", self.content_type)),
                   id: chunk.id.clone(),
-                  contenthash: Some(
-                    chunk
-                      .content_hash
-                      .get(&self.source_type)
-                      .expect("should have chunk content hash")
-                      .clone(),
-                  ),
+                  contenthash: chunk.content_hash.get(&self.source_type).cloned(),
                   chunkhash: hash.clone(),
                   hash,
                   ..Default::default()

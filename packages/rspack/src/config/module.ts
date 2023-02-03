@@ -36,7 +36,7 @@ import {
 	ResolvedDevtool
 } from "./devtool";
 import { ResolvedMode } from "./mode";
-import { Resolve, resolveResolveOptions } from "./resolve";
+import { Resolve, ResolvedResolve, resolveResolveOptions } from "./resolve";
 import { ResolvedTarget } from "./target";
 
 export type Condition = string | RegExp;
@@ -70,7 +70,7 @@ interface ResolvedModuleRule {
 	type?: RawModuleRule["type"];
 	parser?: RawModuleRule["parser"];
 	generator?: RawModuleRule["generator"];
-	resolve?: Resolve;
+	resolve?: ResolvedResolve;
 }
 
 export interface ResolvedModule {
@@ -493,10 +493,14 @@ function composeJsUse(
 				let loader: Loader | undefined;
 				if (typeof use.loader === "string") {
 					try {
-						let loaderPath = require.resolve(use.loader, {
+						const loaderPath = require.resolve(use.loader, {
 							paths: [options.context]
 						});
-						loader = require(loaderPath);
+						const loaderModule = require(loaderPath);
+						loader =
+							typeof loaderModule === "function"
+								? loaderModule
+								: loaderModule.default;
 					} catch (err) {
 						reject(err);
 						return;
