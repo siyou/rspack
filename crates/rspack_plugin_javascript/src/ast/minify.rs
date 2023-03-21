@@ -115,7 +115,7 @@ pub fn minify(opts: &JsMinifyOptions, input: String, filename: &str) -> Result<T
             import_assertions: true,
             ..Default::default()
           }),
-          IsModule::Bool(true),
+          IsModule::Unknown,
           Some(&comments),
         )
         .map_err(|errs| {

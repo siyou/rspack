@@ -28,11 +28,12 @@ pub struct RspackModuleFinalizer<'a> {
   pub compilation: &'a Compilation,
 }
 
-impl<'a> Fold for RspackModuleFinalizer<'a> {
-  fn fold_module(&mut self, mut module: ast::Module) -> ast::Module {
+impl RspackModuleFinalizer<'_> {
+  // TODO: `fold_program` not working in `chain!` for now, replace this with real `fold_program` when SWC fixed this
+  fn pseudo_fold_program(&mut self, mut n: Program) -> Program {
     let mut module_bindings = HashMap::default();
     // TODO: should use dependency's code generation
-    module.visit_mut_with(&mut RspackModuleFormatTransformer::new(
+    n.visit_mut_with(&mut RspackModuleFormatTransformer::new(
       self.unresolved_mark,
       self.module,
       self.compilation,
@@ -64,24 +65,28 @@ impl<'a> Fold for RspackModuleFinalizer<'a> {
       })
       .expect("Failed to get module graph module");
 
-    module.visit_mut_with(&mut HmrApiRewrite {
+    n.visit_mut_with(&mut HmrApiRewrite {
       module: self.module,
       compilation: self.compilation,
       module_bindings: &mut module_bindings,
       esm_dependencies: &esm_dependencies,
     });
-    let body = module
-      .body
-      .into_iter()
-      .filter_map(|stmt| stmt.stmt())
-      .map(|stmt| stmt.into())
-      .collect();
 
-    ast::Module {
-      span: Default::default(),
-      body,
-      shebang: None,
-    }
+    n
+  }
+}
+
+impl<'a> Fold for RspackModuleFinalizer<'a> {
+  fn fold_module(&mut self, module: ast::Module) -> ast::Module {
+    self
+      .pseudo_fold_program(Program::Module(module))
+      .expect_module()
+  }
+
+  fn fold_script(&mut self, script: ast::Script) -> ast::Script {
+    self
+      .pseudo_fold_program(Program::Script(script))
+      .expect_script()
   }
 }
 

@@ -3,7 +3,7 @@ use std::{path::Path, sync::Arc};
 use once_cell::sync::Lazy;
 use rspack_core::{contextify, ModuleType, ReactOptions};
 use swc_core::common::{comments::SingleThreadedComments, Mark, SourceMap};
-use swc_core::ecma::ast::{CallExpr, Callee, Expr, Module, Program};
+use swc_core::ecma::ast::{CallExpr, Callee, Expr, Module, ModuleItem, Program, Script, Stmt};
 use swc_core::ecma::transforms::react::RefreshOptions;
 use swc_core::ecma::transforms::react::{react as swc_react, Options};
 use swc_core::ecma::visit::{Fold, Visit, VisitWith};
@@ -81,40 +81,71 @@ module.hot.accept();
 RefreshRuntime.queueUpdate();
 "#;
 
-static HMR_FOOTER_AST: Lazy<Program> =
-  Lazy::new(|| parse_js_code(HMR_FOOTER.to_string(), &ModuleType::Js).expect("TODO:"));
+static HMR_FOOTER_AST: Lazy<Script> = Lazy::new(|| {
+  parse_js_code(HMR_FOOTER.to_string(), &ModuleType::Js)
+    .expect("TODO:")
+    .expect_script()
+});
 
 pub struct ReactHmrFolder {
   pub id: String,
 }
 
-impl Fold for ReactHmrFolder {
-  fn fold_module(&mut self, mut module: Module) -> Module {
+impl ReactHmrFolder {
+  fn pseudo_fold_program(&mut self, program: Program) -> Program {
     let mut f = FoundReactRefreshVisitor {
       is_refresh_boundary: false,
     };
 
-    module.visit_with(&mut f);
+    program.visit_with(&mut f);
     if !f.is_refresh_boundary {
-      return module;
+      return program;
     }
     // TODO: cache the ast
     let hmr_header_ast = parse_js_code(
       HMR_HEADER.replace("__SOURCE__", self.id.as_str()),
       &ModuleType::Js,
     )
-    .expect("TODO:");
+    .expect("Should never fail to parse HMR header code")
+    .expect_script();
 
-    let mut body = vec![];
-    body.append(&mut match hmr_header_ast {
-      Program::Module(m) => m.body,
-      _ => vec![],
-    });
-    body.append(&mut module.body);
-    if let Some(m) = HMR_FOOTER_AST.as_module() {
-      body.append(&mut m.body.clone());
+    match program {
+      Program::Module(module) => {
+        let mut body: Vec<_> = to_module_body(hmr_header_ast.body);
+
+        body.extend(module.body);
+        body.extend(to_module_body(HMR_FOOTER_AST.body.clone()));
+
+        Program::Module(Module { body, ..module })
+      }
+      Program::Script(script) => {
+        let mut body = hmr_header_ast.body;
+
+        body.extend(script.body);
+        body.extend(HMR_FOOTER_AST.body.clone());
+
+        Program::Script(Script { body, ..script })
+      }
     }
-
-    Module { body, ..module }
   }
+}
+
+impl Fold for ReactHmrFolder {
+  /* TODO:Current version of SWC, fold_program cannot be used in the chain, remove this when fixed */
+  fn fold_module(&mut self, module: Module) -> Module {
+    self
+      .pseudo_fold_program(Program::Module(module))
+      .expect_module()
+  }
+
+  /* TODO:Current version of SWC, fold_program cannot be used in the chain, remove this when fixed */
+  fn fold_script(&mut self, script: Script) -> Script {
+    self
+      .pseudo_fold_program(Program::Script(script))
+      .expect_script()
+  }
+}
+
+fn to_module_body(script_body: Vec<Stmt>) -> Vec<ModuleItem> {
+  script_body.into_iter().map(ModuleItem::Stmt).collect()
 }
