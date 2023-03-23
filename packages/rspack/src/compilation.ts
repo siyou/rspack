@@ -41,6 +41,7 @@ import * as ErrorHelpers from "./ErrorHelpers";
 import { concatErrorMsgAndStack } from "./util";
 import { normalizeStatsPreset, Stats } from "./stats";
 import { NormalModuleFactory } from "./normalModuleFactory";
+import { NormalModule } from "./normalModule";
 
 const hashDigestLength = 8;
 const EMPTY_ASSET_INFO = {};
@@ -116,6 +117,11 @@ export class Compilation {
 		this.outputOptions = compiler.options.output;
 		this.logging = new Map();
 		this.#inner = inner;
+		// Cache the current NormalModuleHooks
+	}
+
+	get currentNormalModuleHooks() {
+		return NormalModule.getCompilationHooks(this);
 	}
 
 	get hash() {
