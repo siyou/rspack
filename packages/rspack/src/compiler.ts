@@ -509,7 +509,7 @@ class Compiler {
 
 	watch(watchOptions: WatchOptions, handler: Callback<Error, Stats>): Watching {
 		if (this.running) {
-			// @ts-ignore
+			// @ts-expect-error
 			return handler(new ConcurrentCompilationError());
 		}
 		this.running = true;
