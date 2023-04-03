@@ -2,10 +2,10 @@
 # cargo install typos
 # typos
 
-[files]
-extend-exclude = [
-  "**/*.{css,map,json,txt,ts,tsx,js,snap}",
-  "./examples",
-  "**/CHANGELOG.md",
-  "pnpm-lock.yaml",
-]
+# [files]
+# extend-exclude = [
+#   "**/*.{css,map,json,txt,ts,tsx,js,snap}",
+#   "./examples",
+#   # "**/CHANGELOG.md",
+#   "pnpm-lock.yaml",
+# ]
