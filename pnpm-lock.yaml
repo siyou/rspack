@@ -588,7 +588,7 @@ importers:
       '@rspack/plugin-minify': workspace:^
       '@rspack/plugin-node-polyfill': workspace:^
       '@rspack/postcss-loader': workspace:^
-      '@swc/helpers': 0.4.13
+      '@swc/helpers': 0.5.0
       '@types/jest': 29.0.2
       '@types/node': ^18.6.3
       '@types/rimraf': 3.0.2
@@ -631,7 +631,7 @@ importers:
     dependencies:
       '@rspack/binding': link:../../crates/node_binding
       '@rspack/dev-client': link:../rspack-dev-client
-      '@swc/helpers': 0.4.13
+      '@swc/helpers': 0.5.0
       browserslist: 4.21.4
       enhanced-resolve: 5.12.0
       graceful-fs: 4.2.10
@@ -886,7 +886,7 @@ importers:
       '@rspack/plugin-minify': workspace:^
       '@rspack/plugin-node-polyfill': workspace:^
       '@rspack/postcss-loader': workspace:^
-      '@swc/helpers': 0.4.13
+      '@swc/helpers': 0.5.0
       '@types/jest': 29.0.2
       '@types/node': ^18.6.3
       '@types/rimraf': 3.0.2
@@ -929,7 +929,7 @@ importers:
     dependencies:
       '@rspack/binding': link:../crates/node_binding
       '@rspack/dev-client': link:../packages/rspack-dev-client
-      '@swc/helpers': 0.4.13
+      '@swc/helpers': 0.5.0
       browserslist: 4.21.4
       enhanced-resolve: 5.12.0
       graceful-fs: 4.2.10
@@ -4749,8 +4749,8 @@ packages:
       '@swc/core-win32-x64-msvc': 1.3.23
     dev: true
 
-  /@swc/helpers/0.4.13:
-    resolution: {integrity: sha512-WOoZMSqpmUgL72xOeaWcU9IG7C6t5Wh1e8NGpSyBvmN5BSCXleK4/PLS6Oko1i/Lvn/yGYOv62bxlfsDvmRurg==}
+  /@swc/helpers/0.5.0:
+    resolution: {integrity: sha512-SjY/p4MmECVVEWspzSRpQEM3sjR17sP8PbGxELWrT+YZMBfiUyt1MRUNjMV23zohwlG2HYtCQOsCwsTHguXkyg==}
     dependencies:
       tslib: 2.5.0
     dev: false
