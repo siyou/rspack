@@ -44,6 +44,7 @@ jobs:
         uses: Swatinem/rust-cache@v2
         with:
           shared-key: check
+          save-if: ${{ github.ref_name == 'main' }}
 
       - name: Run test
         # We need to install sass first to enable sass-loader
