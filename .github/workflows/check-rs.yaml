@@ -47,7 +47,6 @@ jobs:
           save-if: ${{ github.ref_name == 'main' }}
 
       - name: Run test
-        # We need to install sass first to enable sass-loader
         run: |
           node -e "console.log(process.arch)"
           cargo test --workspace  -- --nocapture --test-threads=1
