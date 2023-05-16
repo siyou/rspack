@@ -4,6 +4,7 @@ use std::{
 
 use bitflags::bitflags;
 use hashlink::LinkedHashMap;
+use indexmap::IndexSet;
 use rspack_identifier::{IdentifierLinkedMap, IdentifierMap};
 use rspack_symbol::{
   BetterId, IdOrMemExpr, IndirectTopLevelSymbol, IndirectType, StarSymbol, StarSymbolKind, Symbol,
@@ -127,8 +128,8 @@ pub(crate) struct ModuleRefAnalyze<'a> {
   pub(crate) immediate_evaluate_reference_map: HashMap<SymbolExt, HashSet<IdOrMemExpr>>,
   pub(crate) reachable_import_and_export: HashMap<JsWord, HashSet<SymbolRef>>,
   state: AnalyzeState,
-  pub(crate) used_id_set: HashSet<IdOrMemExpr>,
-  pub(crate) used_symbol_ref: HashSet<SymbolRef>,
+  pub(crate) used_id_set: IndexSet<IdOrMemExpr>,
+  pub(crate) used_symbol_ref: IndexSet<SymbolRef>,
   // This field is used for duplicated export default checking
   pub(crate) export_default_name: Option<JsWord>,
   /// only care about the related export semantic.
@@ -222,8 +223,8 @@ impl<'a> ModuleRefAnalyze<'a> {
       maybe_lazy_reference_map: HashMap::default(),
       reachable_import_and_export: HashMap::default(),
       state: AnalyzeState::empty(),
-      used_id_set: HashSet::default(),
-      used_symbol_ref: HashSet::default(),
+      used_id_set: IndexSet::default(),
+      used_symbol_ref: IndexSet::default(),
       export_default_name: None,
       module_syntax: ModuleSyntax::empty(),
       bail_out_module_identifiers: IdentifierMap::default(),
@@ -1480,7 +1481,7 @@ pub struct OptimizeAnalyzeResult {
   // pub(crate) reference_map: HashMap<BetterId, HashSet<BetterId>>,
   pub(crate) reachable_import_of_export: HashMap<JsWord, HashSet<SymbolRef>>,
   state: AnalyzeState,
-  pub(crate) used_symbol_refs: HashSet<SymbolRef>,
+  pub(crate) used_symbol_refs: IndexSet<SymbolRef>,
   pub(crate) bail_out_module_identifiers: IdentifierMap<BailoutFlag>,
   pub(crate) side_effects: SideEffectType,
   pub(crate) module_syntax: ModuleSyntax,

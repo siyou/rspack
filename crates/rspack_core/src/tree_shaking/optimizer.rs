@@ -3,6 +3,7 @@ use std::{
   collections::{hash_map::Entry, VecDeque},
 };
 
+use indexmap::IndexSet;
 use petgraph::{
   algo,
   prelude::{DiGraphMap, GraphMap},
@@ -61,7 +62,7 @@ impl<'a> CodeSizeOptimizer<'a> {
   pub async fn run(&mut self) -> Result<TWithDiagnosticArray<OptimizeDependencyResult>> {
     let mut analyze_result_map = par_analyze_module(self.compilation).await;
 
-    let mut evaluated_used_symbol_ref: HashSet<SymbolRef> = HashSet::default();
+    let mut evaluated_used_symbol_ref: IndexSet<SymbolRef> = IndexSet::default();
     let mut evaluated_module_identifiers = IdentifierSet::default();
     let side_effects_options = self
       .compilation
